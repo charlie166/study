@@ -1,0 +1,63 @@
+package cn.charlie166.study.web.utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+/**
+* @ClassName: PropertiesUtils 
+* @Description: 属性操作工具类
+* @company 
+* @author liyang
+* @Email charlie166@163.com
+* @date 2017年6月9日 
+*
+ */
+public class PropertiesUtils {
+
+	/**保存的属性键值对**/
+	private static Map<String, String> map = new HashMap<String, String>();
+	
+	static {
+		PropertiesUtils.loadProperties();
+	}
+	
+	/**
+	* @Title: loadProperties 
+	* @Description: 加载属性文件
+	 */
+	private static void loadProperties(){
+		Properties properties = new Properties();
+		try {
+			properties.load(PropertiesUtils.class.getResourceAsStream("/common.properties"));
+			properties.forEach((k, v) -> {
+				if(k != null && v != null){
+					PropertiesUtils.map.put(k.toString(), v.toString());
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	* @Title: getVal 
+	* @Description: 获取配置的值
+	* @param key 查询键
+	* @return 配置的值
+	 */
+	public static String getVal(String key){
+		if(StringUtils.hasContent(key)){
+			return PropertiesUtils.map.get(key);
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+		List<File> list = FileUtils.getFileWithSuffix("F:/charlie/", "zip");
+		System.out.println("size:" + list.size());
+	}
+}
