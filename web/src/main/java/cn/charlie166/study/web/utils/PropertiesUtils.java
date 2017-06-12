@@ -1,7 +1,7 @@
 package cn.charlie166.study.web.utils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class PropertiesUtils {
 	}
 	
 	public static void main(String[] args) {
-		List<File> list = FileUtils.getFileWithSuffix("F:/charlie/", "zip");
+		List<Path> list = FileUtils.getFileWithSuffix("F:/charlie/", "zip");
 		System.out.println("size:" + list.size());
 	}
 }

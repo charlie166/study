@@ -1,6 +1,5 @@
 package cn.charlie166.study.web.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -30,11 +29,11 @@ public class FileUtils {
 	* @param suffix 匹配文件格式。未指定时，返回所有文件
 	* @return 符合要求的文件列表
 	 */
-	public static List<File> getFileWithSuffix(String direction, String suffix){
+	public static List<Path> getFileWithSuffix(String direction, String suffix){
 		if(StringUtils.hasContent(direction)){
 			Path path = Paths.get(direction);
 			try {
-				List<File> list = new ArrayList<File>();
+				List<Path> list = new ArrayList<Path>();
 				Files.walkFileTree(path, new FileVisitor<Path>() {
 					@Override
 					public FileVisitResult preVisitDirectory(Path dir,
@@ -45,7 +44,7 @@ public class FileUtils {
 					public FileVisitResult visitFile(Path file,
 							BasicFileAttributes attrs) throws IOException {
 						if(StringUtils.isNullOrEmpty(suffix) || file.toString().endsWith(suffix)){
-							list.add(file.toFile());
+							list.add(file);
 						}
 						return FileVisitResult.CONTINUE;
 					}
