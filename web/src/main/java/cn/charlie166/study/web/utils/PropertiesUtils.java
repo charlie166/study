@@ -32,7 +32,7 @@ public class PropertiesUtils {
 	private static void loadProperties(){
 		Properties properties = new Properties();
 		try {
-			properties.load(PropertiesUtils.class.getResourceAsStream("/common.properties"));
+			properties.load(PropertiesUtils.class.getResourceAsStream("/config/common.properties"));
 			properties.forEach((k, v) -> {
 				if(k != null && v != null){
 					PropertiesUtils.map.put(k.toString(), v.toString());
@@ -59,5 +59,6 @@ public class PropertiesUtils {
 	public static void main(String[] args) {
 		List<Path> list = FileUtils.getFileWithSuffix("F:/charlie/", "zip");
 		System.out.println("size:" + list.size());
+		System.out.println("val:" + PropertiesUtils.getVal("project.charset"));
 	}
 }
