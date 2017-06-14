@@ -28,9 +28,14 @@ public class DatabaseUtils {
 		}
 	}
 	
-	public Connection getConnection(){
+	/**
+	* @Title: getConnection 
+	* @Description: 获取数据库连接
+	* @return
+	 */
+	public static Connection getConnection(){
 		try {
-			DriverManager.getConnection(url, user, pwd);
+			return DriverManager.getConnection(url, user, pwd);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

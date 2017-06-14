@@ -2,6 +2,7 @@ package cn.charlie166.study.web.utils;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,16 +32,19 @@ public class PropertiesUtils {
 	 */
 	private static void loadProperties(){
 		Properties properties = new Properties();
-		try {
-			properties.load(PropertiesUtils.class.getResourceAsStream("/config/common.properties"));
-			properties.forEach((k, v) -> {
-				if(k != null && v != null){
-					PropertiesUtils.map.put(k.toString(), v.toString());
-				}
-			});
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String files[] = {"/config/common.properties", "/config/dao.properties"};
+		Arrays.asList(files).forEach(str -> {
+			try {
+				properties.load(PropertiesUtils.class.getResourceAsStream(str));
+				properties.forEach((k, v) -> {
+					if(k != null && v != null){
+						PropertiesUtils.map.put(k.toString(), v.toString());
+					}
+				});
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	
 	/**
