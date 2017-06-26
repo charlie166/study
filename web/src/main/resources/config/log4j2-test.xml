@@ -2,14 +2,14 @@
 <Configuration status="WARN">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-      		<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+      		<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}[%line] - %msg%n"/>
     	</Console>
   	</Appenders>
   	<Loggers>
     	<Root level="error">
       		<AppenderRef ref="Console"/>
     	</Root>
-    	<Logger name="ch.charlie166.study.test" level="debug" additivity="false">
+    	<Logger name="cn.charlie166" level="debug" additivity="false">
       		<AppenderRef ref="Console"/>
     	</Logger>
   	</Loggers>

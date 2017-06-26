@@ -1,10 +1,13 @@
-package ch.charlie166.study.test.me;
+package cn.charlie166.study.test.me;
+
+import java.nio.file.Paths;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.charlie166.study.test.ParentTest;
+import cn.charlie166.study.test.ParentTest;
+import cn.charlie166.study.web.utils.FileUtils;
 
 /**
 * @ClassName: AppTest 
@@ -22,6 +25,12 @@ public class AppTest extends ParentTest{
 	@Test
 	public void testLogger(){
 		logger.debug("测试输出...");
+	}
+	
+	@Test
+	public void testListenDirection(){
+		logger.debug("测试监听文件夹...");
+		FileUtils.listenDirectionCreate(Paths.get("F:/rato/test"));
 	}
 	
 }	

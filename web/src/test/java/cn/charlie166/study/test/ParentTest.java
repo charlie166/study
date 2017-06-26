@@ -1,4 +1,4 @@
-package ch.charlie166.study.test;
+package cn.charlie166.study.test;
 
 import org.junit.After;
 import org.junit.BeforeClass;

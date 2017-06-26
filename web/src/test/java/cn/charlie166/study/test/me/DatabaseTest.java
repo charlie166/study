@@ -1,4 +1,4 @@
-package ch.charlie166.study.test.me;
+package cn.charlie166.study.test.me;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.charlie166.study.test.ParentTest;
 import cn.charlie166.study.web.utils.DatabaseUtils;
-import ch.charlie166.study.test.ParentTest;
 
 /**
 * @ClassName: DatabaseTest 

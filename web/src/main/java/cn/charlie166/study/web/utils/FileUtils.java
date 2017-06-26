@@ -1,15 +1,22 @@
 package cn.charlie166.study.web.utils;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
 * @ClassName: FileUtils 
@@ -22,6 +29,8 @@ import java.util.List;
  */
 public class FileUtils {
 
+	private static Logger logger = LoggerFactory.getLogger(FileUtils.class);
+	
 	/**
 	* @Title: getFileWithSuffix 
 	* @Description: 获取文件夹下所有指定格式文件
@@ -30,6 +39,7 @@ public class FileUtils {
 	* @return 符合要求的文件列表
 	 */
 	public static List<Path> getFileWithSuffix(String direction, String suffix){
+		logger.debug("遍历文件夹[" + direction + "]格式[" + suffix + "]");
 		if(StringUtils.hasContent(direction)){
 			Path path = Paths.get(direction);
 			try {
@@ -65,5 +75,48 @@ public class FileUtils {
 			}
 		}
 		return Collections.emptyList();
+	}
+	
+	public static void listenDirectionCreate(Path direction){
+		logger.debug("监听文件夹[" + direction.toString() + "]");
+		if(direction != null && Files.isDirectory(direction)){
+			try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
+	            //给path路径加上文件观察服务
+				direction.register(watchService, 
+					StandardWatchEventKinds.ENTRY_CREATE,
+					StandardWatchEventKinds.ENTRY_MODIFY,
+					StandardWatchEventKinds.ENTRY_DELETE);
+	            while (true) {
+	                final WatchKey key = watchService.take();
+	                for (WatchEvent<?> watchEvent : key.pollEvents()) {
+	                    final WatchEvent.Kind<?> kind = watchEvent.kind();
+	                    if (kind == StandardWatchEventKinds.OVERFLOW) {
+	                        continue;
+	                    }
+	                    @SuppressWarnings("unchecked")
+	                    final WatchEvent<Path> watchEventPath = (WatchEvent<Path>) watchEvent;
+	                    final Path filename = watchEventPath.context();
+	                    logger.debug(kind + " -> " + filename);
+	                    if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+
+	                    }
+	                    if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+
+	                    }
+	                    if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+
+	                    }
+	                }
+	                boolean valid = key.reset();
+	                /***exit loop if the key is not valid (if the directory was deleted,for)***/
+	                if (!valid) {
+	                    break;
+	                }
+	            }
+
+	        } catch (IOException | InterruptedException ex) {
+	        	 logger.error("监听异常", ex);
+	        }
+		}
 	}
 }	
