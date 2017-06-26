@@ -30,7 +30,7 @@ public class DatabaseTest extends ParentTest{
 	@Test
 	public void testInsert(){
 		StringBuilder sql = new StringBuilder();
-		sql.append(" INSERT INTO demo(name, title) VALUES('a0', 't0')");
+		sql.append(" INSERT INTO demo(name, title) VALUES('a1', 't1')");
 		try {
 			PreparedStatement ps = DatabaseUtils.getConnection().prepareStatement(sql.toString());
 			int result = ps.executeUpdate();
