@@ -7,6 +7,25 @@
    		<welcome-file>page/home</welcome-file>
    	</welcome-file-list>
    	
+   	<context-param>
+   		<param-name>log4jConfiguration</param-name>
+   		<param-value>classpath:config/log4j2.xml</param-value>
+   	</context-param>
+   	
+   	<filter>
+   		<filter-name>servletFilter</filter-name>
+   		<filter-class>cn.charlie166.study.web.filter.ServletFilter</filter-class>
+   		<init-param>
+   			<param-name>charset</param-name>
+   			<param-value>UTF-8</param-value>
+   		</init-param>
+   	</filter>
+   	
+   	<filter-mapping>
+   		<filter-name>servletFilter</filter-name>
+   		<url-pattern>*</url-pattern>
+   	</filter-mapping>
+   	
    	<error-page>
    		<error-code>404</error-code>
    		<location>/404</location>
