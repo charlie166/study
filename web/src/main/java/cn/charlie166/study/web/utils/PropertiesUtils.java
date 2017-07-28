@@ -61,7 +61,7 @@ public class PropertiesUtils {
 	}
 	
 	public static void main(String[] args) {
-		List<Path> list = FileUtils.getFileWithSuffix("F:/charlie/", "zip");
+		List<Path> list = FileUtils.getPathWithSuffix("F:/charlie/", "zip");
 		System.out.println("size:" + list.size());
 		System.out.println("val:" + PropertiesUtils.getVal("project.charset"));
 	}

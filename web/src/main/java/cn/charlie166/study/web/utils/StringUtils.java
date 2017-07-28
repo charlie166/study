@@ -1,5 +1,6 @@
 package cn.charlie166.study.web.utils;
 
+
 /**
 * @ClassName: StringUtils 
 * @Description: 字符串工具类
@@ -57,6 +58,43 @@ public class StringUtils {
 		} else {
 			return StringUtils.EMPTY_STRING;
 		}
+	}
+	
+	/**
+	* @Title: toInteger 
+	* @Description: 转换对象为整型封装类型
+	* @param obj 需要转换的数据
+	* @return 转换结果，无法转换时为null
+	 */
+	public static Integer toInteger(Object obj){
+		return obj != null ? StringUtils.toInteger(obj.toString()) : null;
+	}
+	
+	/**
+	* @Title: toInteger 
+	* @Description: 将字符串转换为整数封装类型
+	* @param str 需要转换的字符串
+	* @return 转换结果，无法转换时返回null
+	 */
+	public static Integer toInteger(String str){
+		return StringUtils.toInteger(str, null);
+	}
+	
+	/**
+	* @Title: toInteger 
+	* @Description: 将字符串转换为整数封装类型
+	* @param str 需要转换的字符串
+	* @param defaultVal 无法正确转换时的默认值
+	* @return 转换结果
+	 */
+	public static Integer toInteger(String str, Integer defaultVal){
+		if(StringUtils.hasContent(str)){
+			try {
+				return Integer.valueOf(str);
+			} catch (Exception e) {
+			}
+		}
+		return defaultVal;
 	}
 	
 	public static void main(String[] args) {
