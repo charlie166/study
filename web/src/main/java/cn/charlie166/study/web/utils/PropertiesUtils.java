@@ -60,6 +60,20 @@ public class PropertiesUtils {
 		return null;
 	}
 	
+	/**
+	* @Title: getValOrDefault 
+	* @Description: 获取指定键的值，不存在时返回默认值
+	* @param key 查询键
+	* @param def 默认值
+	* @return
+	 */
+	public static String getValOrDefault(String key, String def){
+		if(StringUtils.hasContent(key)){
+			return PropertiesUtils.map.get(key) == null ? def : PropertiesUtils.map.get(key);
+		}
+		return def;
+	}
+	
 	public static void main(String[] args) {
 		List<Path> list = FileUtils.getPathWithSuffix("F:/charlie/", "zip");
 		System.out.println("size:" + list.size());
