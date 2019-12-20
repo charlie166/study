@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 public class TableInfoField {
 
+    /*序号**/
+    private Integer sort;
     /*字段名称**/
     private String field;
     /*中文名**/
@@ -17,7 +19,7 @@ public class TableInfoField {
     /*默认值**/
     private String defaultVal;
     /*是否不为空**/
-    private boolean notNull = true;
+    private boolean notNull;
     /*备注**/
     private String remark;
 }

@@ -1,8 +1,10 @@
 package cn.charlie166.spring.boot.web.domain;
 
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 数据库表单信息对象
@@ -17,7 +19,12 @@ public class TableInfo {
     /*表字段列表**/
     private List<TableInfoField> fields;
     /*主键**/
-    private TableInfoPrimary primary;
+    private TableInfoIndex primary;
     /*索引**/
-    private TableInfoIndex index;
+    private List<TableInfoIndex> index;
+
+    @Override
+    public String toString() {
+        return name + ":{" + (CollectionUtils.isNotEmpty(fields) ? fields.stream().map(TableInfoField::getField).collect(Collectors.joining(",")) : "") + "]";
+    }
 }
