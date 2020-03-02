@@ -5,17 +5,12 @@ import cn.charlie166.spring.boot.web.exception.CustomException;
 import cn.charlie166.spring.boot.web.service.TableService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +26,8 @@ public class TableServiceImpl implements TableService {
 
     /*匹配数据库表名**/
     private Pattern PATTERN_TABLE_NAME = Pattern.compile("[(（]([\\w\\u4e00-\\u9fa5]+?)[)）]");
+    /*匹配索引正则表达式**/
+    private Pattern PATTERN_INDEX_INFO = Pattern.compile("[(（]([\\w\\s\\u4e00-\\u9fa5,]+?)[)）]");
     /*数字正则表达式**/
     private Pattern PATTERN_NUMBER = Pattern.compile("\\d+");
 
@@ -47,14 +44,21 @@ public class TableServiceImpl implements TableService {
         if(fileName.toString().toLowerCase().endsWith(".docx")) {
             try (XWPFDocument doc = new XWPFDocument(Files.newInputStream(path))){
                 Iterator<XWPFTable> tablesIterator = doc.getTablesIterator();
+                final Path outFile = Paths.get("F:/out.sql");
+                Files.deleteIfExists(outFile);
+                if(Files.notExists(outFile))
+                    Files.createFile(outFile);
                 while (tablesIterator.hasNext()) {
                     XWPFTable table = tablesIterator.next();
                     String[] checkResult = this.checkDatabaseTable(table);
                     if(checkResult != null) {
                         if(checkResult[0].matches("[a-zA-z0-9_]+")){
-                            log.debug("数据库表: {}----{}", checkResult[0], checkResult[1]);
+                            log.debug("数据库表: \r\n{}----{}", checkResult[0], checkResult[1]);
                             TableInfo tableInfo = this.convert(table);
                             if(tableInfo != null) {
+                                final String sql = this.toScript(tableInfo) + System.lineSeparator() + System.lineSeparator();
+                                log.debug("sql: {}", sql);
+                                Files.write(outFile, sql.getBytes(), StandardOpenOption.APPEND);
                             } else {
                                 log.debug("数据表[{}]无法正确处理", checkResult[0]);
                             }
@@ -91,8 +95,8 @@ public class TableServiceImpl implements TableService {
                     String s = content.substring(index + 1).trim();
                     Matcher matcher = PATTERN_TABLE_NAME.matcher(s);
                     if(matcher.find()){
-                        String [] tmp = new String[]{"", matcher.group(1)};
-                        tmp[0] = s.substring(0, matcher.start());
+                        String [] tmp = new String[]{"", matcher.group(1).trim()};
+                        tmp[0] = s.substring(0, matcher.start()).trim();
                         return tmp;
                     } else {
                         return new String[]{s, ""};
@@ -144,8 +148,8 @@ public class TableServiceImpl implements TableService {
                             indexInfo[5] = this.containCheckIndex(tableCells, "空");
                             indexInfo[6] = this.containCheckIndex(tableCells, "备注");
                         }
-                        /*第一个单元格不包含数字的---- TODO getText()方法获取不到编号**/
-                        if(startIndex > -1 && !PATTERN_NUMBER.matcher(firstCell.getText().trim()).find()) {
+                        /*第一个单元格是空字符串的**/
+                        if(startIndex > -1 && "".equals(firstCell.getText().trim())) {
                             /*前面一行为字段配置最后一行**/
                             if (i > startIndex) {
                                 endIndex = i - 1;
@@ -179,7 +183,7 @@ public class TableServiceImpl implements TableService {
                         field.setDefaultVal(row.getCell(indexInfo[4]).getText().trim());
                     }
                     if(indexInfo[5] >= 0 && row.getTableCells().size() > indexInfo[5] && StringUtils.hasText(row.getCell(indexInfo[5]).getText())) {
-                        field.setNotNull(row.getCell(indexInfo[5]).getText().replaceAll("\\S+", "").toLowerCase().equals("notnull"));
+                        field.setNotNull(row.getCell(indexInfo[5]).getText().replaceAll("\\s+", "").toLowerCase().equals("notnull"));
                     }
                     if(indexInfo[6] >= 0 && row.getTableCells().size() > indexInfo[6] && StringUtils.hasText(row.getCell(indexInfo[6]).getText())) {
                         field.setRemark(row.getCell(indexInfo[6]).getText());
@@ -209,9 +213,9 @@ public class TableServiceImpl implements TableService {
                     /*至少需要2个单元格内容**/
                     if(CollectionUtils.isNotEmpty(row.getTableCells()) && row.getTableCells().size() >= 2) {
                         /*配置内容**/
-                        String text = row.getTableCells().get(1).getText();
-                        if(StringUtils.hasText(text)) {
-                            List<TableInfoIndex> indexList = Stream.of(text.trim().split("\\s+")).filter(StringUtils::hasText).map(s -> this.indexInfo(s.trim()))
+                        final List<XWPFParagraph> paragraphs = row.getTableCells().get(1).getParagraphs();
+                        if(CollectionUtils.isNotEmpty(paragraphs)) {
+                            List<TableInfoIndex> indexList = paragraphs.stream().map(XWPFParagraph::getText).filter(StringUtils::hasText).map(s -> this.indexInfo(s.trim()))
                                     .filter(Objects::nonNull).collect(Collectors.toList());
                             ti.setIndex(indexList);
                         }
@@ -248,17 +252,75 @@ public class TableServiceImpl implements TableService {
     private TableInfoIndex indexInfo(String text) {
         Objects.requireNonNull(text, "数据不能为空");
         TableInfoIndex tii = new TableInfoIndex();
-        Matcher matcher = PATTERN_TABLE_NAME.matcher(text.trim());
-        /*主键索引名称**/
-        String indexName = text.trim();
+        Matcher matcher = PATTERN_INDEX_INFO.matcher(text.trim());
         if(matcher.find()) {
             /*字段字符串**/
             String fieldsString = matcher.group(1);
             if(StringUtils.hasText(fieldsString)) {
                 tii.setField(Stream.of(fieldsString.split(",")).filter(StringUtils::hasText).map(String::trim).collect(Collectors.toSet()));
             }
+            /*主键索引名称**/
+            tii.setName(text.substring(0, matcher.start()));
+            return tii;
         }
-        tii.setName(indexName);
-        return tii;
+        return null;
+    }
+
+    /***
+     * 将表对象数据转换为建表脚本语句
+     * @param ti 表数据
+     * @return 脚本语句
+     */
+    private String toScript(TableInfo ti) {
+        Objects.requireNonNull(ti);
+        /*表字段语句**/
+        StringBuilder sql = new StringBuilder();
+        /*表备注信息语句**/
+        StringBuilder remark = new StringBuilder();
+        if(CollectionUtils.isNotEmpty(ti.getFields())) {
+            /*先添加表备注**/
+            if(!StringUtils.isEmpty(ti.getLabel())) {
+                remark.append("EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'" + ti.getLabel() +
+                    "' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'" + ti.getName() + "'")
+                .append(System.lineSeparator()).append("GO").append(System.lineSeparator());
+            }
+            sql.append("/*==================================================================*/").append(System.lineSeparator());
+            sql.append("/* Table:").append(ti.getName()).append("       ").append(!StringUtils.isEmpty(ti.getLabel()) ? ti.getLabel() : "")
+                .append("        */").append(System.lineSeparator());
+            sql.append("/*==================================================================*/").append(System.lineSeparator());
+            sql.append("SET ANSI_NULLS ON").append(System.lineSeparator()).append("GO").append(System.lineSeparator());
+            sql.append("SET QUOTED_IDENTIFIER ON").append(System.lineSeparator()).append("GO").append(System.lineSeparator());
+            sql.append("CREATE TABLE ").append(ti.getName()).append(" (").append(System.lineSeparator());
+            List<String> fieldList = new ArrayList<>(ti.getFields().size() + 1);
+            ti.getFields().forEach(field -> {
+                fieldList.add("\t" + field.getField() + "\t" + field.getType().toUpperCase() + "\t" +
+                    (StringUtils.isEmpty(field.getDefaultVal()) ? "" : "DEFAULT '" + field.getDefaultVal() + "'") + "\t" +
+                    (field.isNotNull() ? "NOT NULL" : "NULL"));
+                if(!StringUtils.isEmpty(field.getChinese()) || !StringUtils.isEmpty(field.getRemark())){
+                    String description = (!StringUtils.isEmpty(field.getChinese()) ? field.getChinese() : "") +
+                        (!StringUtils.isEmpty(field.getRemark()) ? "{" + field.getRemark().replaceAll("\\s+", " ") + "}" : "");
+                    remark.append("EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'" + description +
+                        "' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'" + ti.getName() +
+                        "', @level2type=N'COLUMN',@level2name=N'" + field.getField() + "'")
+                        .append(System.lineSeparator()).append("GO").append(System.lineSeparator());
+                }
+            });
+            if(ti.getPrimary() != null) {
+                fieldList.add("\tCONSTRAINT " + ti.getPrimary().getName() + " PRIMARY KEY CLUSTERED (" + System.lineSeparator() + "\t\t" +
+                    ti.getPrimary().getField().stream().map(one -> one + " ASC").collect(Collectors.joining("," + System.lineSeparator() + "\t")) +
+                    System.lineSeparator() + "\t" +
+                    ")WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]");
+            }
+            sql.append(fieldList.stream().collect(Collectors.joining("," + System.lineSeparator()))).append(System.lineSeparator());
+            sql.append(") ON [PRIMARY]").append(System.lineSeparator()).append("GO").append(System.lineSeparator());
+            sql.append(remark.toString());
+            /*这里只是索引, 不是唯一索引**/
+            if(CollectionUtils.isNotEmpty(ti.getIndex())) {
+                sql.append(ti.getIndex().stream().map(index -> "CREATE INDEX " +
+                    index.getName() + " ON " + ti.getName() + "(" + index.getField().stream().collect(Collectors.joining(", ")) +
+                    ") WITH FILLFACTOR=30" + System.lineSeparator() + "GO").collect(Collectors.joining(System.lineSeparator())));
+            }
+        }
+        return sql.toString();
     }
 }
