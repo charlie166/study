@@ -44,7 +44,7 @@ public class TableServiceImpl implements TableService {
         if(fileName.toString().toLowerCase().endsWith(".docx")) {
             try (XWPFDocument doc = new XWPFDocument(Files.newInputStream(path))){
                 Iterator<XWPFTable> tablesIterator = doc.getTablesIterator();
-                final Path outFile = Paths.get("F:/out.sql");
+                Path outFile = Paths.get(path.getParent().toString(), "out.sql");
                 Files.deleteIfExists(outFile);
                 if(Files.notExists(outFile))
                     Files.createFile(outFile);
@@ -92,7 +92,7 @@ public class TableServiceImpl implements TableService {
                 String content = cell.getText();
                 if(content.contains("表")) {
                     int index = content.contains(":") ? content.indexOf(":") : content.indexOf("：");
-                    String s = content.substring(index + 1).trim();
+                    String s = content.substring(index + 1).trim().replaceAll("\\s+", "");
                     Matcher matcher = PATTERN_TABLE_NAME.matcher(s);
                     if(matcher.find()){
                         String [] tmp = new String[]{"", matcher.group(1).trim()};
@@ -171,22 +171,22 @@ public class TableServiceImpl implements TableService {
                         }
                     }
                     if(indexInfo[1] >= 0 && row.getTableCells().size() > indexInfo[1] && StringUtils.hasText(row.getCell(indexInfo[1]).getText())) {
-                        field.setField(row.getCell(indexInfo[1]).getText().trim());
+                        field.setField(row.getCell(indexInfo[1]).getText().replaceAll("\\s+", ""));
                     }
                     if(indexInfo[2] >= 0 && row.getTableCells().size() > indexInfo[2] && StringUtils.hasText(row.getCell(indexInfo[2]).getText())) {
-                        field.setChinese(row.getCell(indexInfo[2]).getText());
+                        field.setChinese(row.getCell(indexInfo[2]).getText().replaceAll("\\s+", ""));
                     }
                     if(indexInfo[3] >= 0 && row.getTableCells().size() > indexInfo[3] && StringUtils.hasText(row.getCell(indexInfo[3]).getText())) {
-                        field.setType(row.getCell(indexInfo[3]).getText().trim());
+                        field.setType(row.getCell(indexInfo[3]).getText().replaceAll("\\s+", ""));
                     }
                     if(indexInfo[4] >= 0 && row.getTableCells().size() > indexInfo[4] && StringUtils.hasText(row.getCell(indexInfo[4]).getText())) {
-                        field.setDefaultVal(row.getCell(indexInfo[4]).getText().trim());
+                        field.setDefaultVal(row.getCell(indexInfo[4]).getText().replaceAll("\\s+", ""));
                     }
                     if(indexInfo[5] >= 0 && row.getTableCells().size() > indexInfo[5] && StringUtils.hasText(row.getCell(indexInfo[5]).getText())) {
                         field.setNotNull(row.getCell(indexInfo[5]).getText().replaceAll("\\s+", "").toLowerCase().equals("notnull"));
                     }
                     if(indexInfo[6] >= 0 && row.getTableCells().size() > indexInfo[6] && StringUtils.hasText(row.getCell(indexInfo[6]).getText())) {
-                        field.setRemark(row.getCell(indexInfo[6]).getText());
+                        field.setRemark(row.getCell(indexInfo[6]).getText().replaceAll("\\s+", ""));
                     }
                     fieldList.add(field);
                 }
@@ -257,10 +257,11 @@ public class TableServiceImpl implements TableService {
             /*字段字符串**/
             String fieldsString = matcher.group(1);
             if(StringUtils.hasText(fieldsString)) {
-                tii.setField(Stream.of(fieldsString.split(",")).filter(StringUtils::hasText).map(String::trim).collect(Collectors.toSet()));
+                tii.setField(Stream.of(fieldsString.split(",")).filter(StringUtils::hasText).map(String::trim)
+                        .map(txt -> txt.replaceAll("\\s+", "")).collect(Collectors.toSet()));
             }
             /*主键索引名称**/
-            tii.setName(text.substring(0, matcher.start()));
+            tii.setName(text.substring(0, matcher.start()).replaceAll("\\s+", ""));
             return tii;
         }
         return null;
