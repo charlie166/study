@@ -10,6 +10,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <kettle-version>8.3.0.0-371</kettle-version>
     </properties>
 
     <parent>
@@ -55,11 +56,83 @@
             <groupId>org.docx4j</groupId>
             <artifactId>docx4j</artifactId>
             <version>6.1.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+        <!--
+        <dependency>
+            <groupId>com.github.downgoon</groupId>
+            <artifactId>MarvinPlugins</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+        -->
+        <!--
+        <dependency>
+            <groupId>pentaho-kettle</groupId>
+            <artifactId>kettle-dbdialog</artifactId>
+            <version>${kettle-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.swt</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>mitmproxy-java</artifactId>
+            <version>1.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
+        <!--<resources>
+            <resource>
+                <directory>src/main/lib</directory>
+                <targetPath>BOOT-INF/lib</targetPath>
+                <includes>
+                    <include>**/*.jar</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+        </resources>-->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -67,5 +140,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>pentaho-public</id>
+            <name>Pentaho Public</name>
+            <url>http://nexus.pentaho.org/content/groups/omni/</url>
+        </repository>
+        <repository>
+            <id>alimaven</id>
+            <name>aliyun maven</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
 
 </project>

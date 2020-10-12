@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<property name="rootPath" value="D:/07_ServerEnvironment/logs/web"/>
+	<property name="charset" value="UTF-8"/>
+
+    <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${PID:- } %-40.40logger{39}[%line] - %msg%n"/>
+
+    <!-- 控制台输出 -->
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder charset="${charset}">
+			<Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+		</encoder>
+	</appender>
+	<!-- 按天输出文件
+	<appender name="dayfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${rootPath}/%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>31</maxHistory>
+		</rollingPolicy>
+		<encoder charset="${charset}">
+			<Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+		</encoder>
+	</appender> -->
+	<!-- 按大小输出文件 -->
+	<appender name="sizefile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${rootPath}/web.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${rootPath}/web.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>31</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>5MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder charset="${charset}">
+			<Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+		</encoder>
+	</appender>
+
+    <logger name="cn.charlie166" level="DEBUG" additivity="false">
+		<appender-ref ref="stdout" />
+	</logger>
+
+	<root level="info">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="sizefile" />
+	</root>
+</configuration>

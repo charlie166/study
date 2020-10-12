@@ -5,15 +5,11 @@ package cn.charlie166.spring.boot.web.exception;
  */
 public class CustomException extends RuntimeException{
 
-    public CustomException(String msg) {
+    private CustomException(String msg) {
         super(msg);
     }
 
-    public CustomException(Throwable t) {
-        super(t);
-    }
-
-    public CustomException(String msg, Throwable t){
+    private CustomException(String msg, Throwable t){
         super(msg, t);
     }
 
@@ -21,4 +17,7 @@ public class CustomException extends RuntimeException{
         return new CustomException(msg);
     }
 
+    public static CustomException t(String msg, Throwable t) {
+        return new CustomException(msg, t);
+    }
 }

@@ -15,12 +15,13 @@ public class IndexController extends BaseController {
 
     /**
      * 首页请求
-     * @return
+     * @return 页面地址
      */
     @GetMapping(value = {"", "/"})
     public String pageIndex(Model model) {
         LocalDateTime now = LocalDateTime.now();
-        model.addAttribute("now", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(now));
+        String nowString = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(now);
+        model.addAttribute("now", nowString);
         return "index/index";
     }
 }

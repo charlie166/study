@@ -8,11 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.stream.IntStream;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = BootApplication.class)
+//@RunWith(SpringRunner.class)
+//@SpringBootTest(classes = BootApplication.class)
 public class TestLogger {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,5 +42,11 @@ public class TestLogger {
         Integer i1 = new Integer(13333);
         Integer i2 = Integer.valueOf(232323);
         logger.debug("check:" + (i1.getClass() == i2.getClass()));
+    }
+
+    @Test
+    public void test5() {
+        BigDecimal bd = new BigDecimal("1");
+        logger.debug("val: {}", bd.setScale(0, BigDecimal.ROUND_UP).intValue());
     }
 }
